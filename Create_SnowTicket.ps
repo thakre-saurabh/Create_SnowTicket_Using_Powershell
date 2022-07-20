@@ -1,0 +1,88 @@
+<#
+.Synopsis
+  Create ticket... 
+.DESCRIPTION
+  Create ticket in service now...
+.EXAMPLE
+    Create-Ticket -url "https://dev106456.service-now.com/api/now/table/incident" -Short_description "memory" -Long_description "memory utilization"
+
+.INPUTS
+   Inputs to this cmdlet (if any)
+.OUTPUTS
+   Output from this cmdlet (if any)
+.NOTES
+   Create ticket only when service now is open in your chrome browser
+.COMPONENT
+   The component this cmdlet belongs to
+.ROLE
+   The role this cmdlet belongs to
+.FUNCTIONALITY
+   The functionality that best describes this cmdlet
+#>
+function Create-Ticket
+{
+    [CmdletBinding( 
+                  SupportsShouldProcess=$true, 
+                  PositionalBinding=$false,
+                  HelpUri = 'http://www.microsoft.com/',
+                  ConfirmImpact='Medium')]
+    [Alias()]
+    [OutputType([String])]
+    Param
+    (
+     
+        [Parameter(Mandatory=$true, 
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        $url,
+
+      
+        [Parameter(Mandatory=$true, 
+                   ValueFromPipeline=$true,
+                   Position=1)]
+        $Short_description,
+
+       
+        [Parameter(Mandatory=$false, 
+                   ValueFromPipeline=$true,
+                   Position=2)]
+        $Long_description,
+
+         [Parameter(Mandatory=$false, 
+                   ValueFromPipeline=$true,
+                   Position=3)]
+        $work_notes
+
+    )
+
+    Begin
+    {
+      
+    }
+    Process
+    {
+        $incidetInfo =
+    "{
+    ""short_description"":""$Short_description"",
+    ""description"":""$Long_description"", 
+    ""assignment_group"":""44678f9b2f696010b707bab62799b6b2"",
+    ""urgency"":""2"",
+    ""impact"":""2"",
+    ""work_notes"":""$work_notes""
+       }"
+    $info= Invoke-RestMethod -Uri $url -Credential Get-Credential -Body $incidetInfo -ContentType "application/json" -Method Post 
+    }
+    End
+    {
+        $inc_ticket=$info.result |  select -Property number
+       if ($inc_ticket -like "*INC*")
+       {
+          Write-Host "$inc_ticket is created"  
+       }
+       else
+       {
+            Write-Host "Ticket is not created"
+       }
+       
+    }
+}
